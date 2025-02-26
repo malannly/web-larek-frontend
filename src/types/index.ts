@@ -14,9 +14,10 @@ interface IBasket {
     basket: ICatalog[];
     add(product: ICatalog): void;
     remove(productId: string): void;
-    getTotalPrice(): number;
+    getTheFinalPrice(): number;
     clear(): void;
     getBasketAmount(): number;
+    catalogInBasket(productId: string): boolean;
 }
 
 // интерфейс пользователя
@@ -30,13 +31,13 @@ interface IUser {
     address: string;
     email: string;
     phoneNumber: string;
-    selectedItems: ICatalog[];
+    selectedItems: string[];
     total: number;
 }
 
 // интерфейс для оформленного товара
 interface IOrder {
-    items: string[];
+    items: ICatalog[];
     paymentMethod: PaymentMethod;
     address: string;
     email: string;
