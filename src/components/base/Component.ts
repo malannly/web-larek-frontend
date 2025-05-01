@@ -49,6 +49,15 @@ export abstract class Component<T> {
         }
     }
 
+    // Установить цену или бесценный если нет цены
+    protected setPrice(element: HTMLElement, value: unknown) {
+        if (element) {
+            element.textContent = String(value);
+        } else {
+            element.textContent = String('бесценный');
+        }
+    }
+
     // Вернуть корневой DOM-элемент
     render(data?: Partial<T>): HTMLElement {
         Object.assign(this as object, data ?? {});

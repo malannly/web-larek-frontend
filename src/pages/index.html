@@ -39,7 +39,7 @@
 		</div>
 	</div>
 
-	<div class="modal modal_active">
+	<div class="modal">
 		<div class="modal__container">
 			<button class="modal__close" aria-label="закрыть"></button>
 			<div class="modal__content">
@@ -91,7 +91,7 @@
 					</div>
 				</div>
 			</div>
-		</div>
+		</div>	
 	</div>
 
 	<div class="modal">
@@ -103,8 +103,8 @@
 						<div class="order__field">
 							<h2 class="modal__title">Способ оплаты</h2>
 							<div class="order__buttons">
-								<button type="button" class="button button_alt">Онлайн</button>
-								<button type="button" class="button button_alt">При получении</button>
+								<button type="button" class="button button__payment button_alt">Онлайн</button>
+								<button type="button" class="button button__payment button_alt">При получении</button>
 							</div>
 						</div>
 						<label class="order__field">
@@ -136,7 +136,7 @@
 						</label>
 					</div>
 					<div class="modal__actions">
-						<button disabled class="button">Оплатить</button>
+						<button disabled class="button button_pay">Оплатить</button>
 					</div>
 				</form>
 			</div>
@@ -214,8 +214,8 @@
 				<div class="order__field">
 					<h2 class="modal__title">Способ оплаты</h2>
 					<div class="order__buttons">
-						<button name="card" type="button" class="button button_alt">Онлайн</button>
-						<button name="cash" type="button" class="button button_alt">При получении</button>
+						<button name="card" type="button" class="button button__payment button_alt">Онлайн</button>
+						<button name="cash" type="button" class="button button__payment button_alt">При получении</button>
 					</div>
 				</div>
 				<label class="order__field">
@@ -243,7 +243,7 @@
 				</label>
 			</div>
 			<div class="modal__actions">
-				<button type="submit" disabled class="button">Оплатить</button>
+				<button type="submit" disabled class="button button_pay">Оплатить</button>
 				<span class="form__errors"></span>
 			</div>
 		</form>
