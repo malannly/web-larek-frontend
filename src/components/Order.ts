@@ -1,72 +1,57 @@
 import { Form } from "./common/Form";
-import { EventEmitter } from "./base/events";
+import { EventEmitter, IEvents } from "./base/events";
 import { ensureElement } from "../utils/utils";
+import { IOrderForm, paymentMethod } from "../types";
 
 interface IOrderActions {
     onClick: () => void;
 }
 
-export type ITypePayment = 'card' | 'cash'
-
-// форма товара
-export interface IOrderForm {
-    payment: string;
-    address: string
-    }
-
     export class Order extends Form<IOrderForm> {
         private _addressInput: HTMLInputElement;
-        private _paymentButtons: HTMLButtonElement[];
-        private _submitButton: HTMLButtonElement;
-        private _selectedPayment: ITypePayment | null = null;
+        private _paymentButtons: NodeListOf<HTMLButtonElement>;;
+        private _button: HTMLButtonElement;
     
-        constructor(blockName: string, container: HTMLFormElement, events: EventEmitter, actions?: IOrderActions) {
+        constructor(container: HTMLFormElement, events: IEvents) {
             super(container, events);
     
-            // поле адреса
-            this._addressInput = ensureElement<HTMLInputElement>('.form__input', container);
-            this._submitButton = ensureElement<HTMLButtonElement>('.order__button', container);
-            this._paymentButtons = Array.from(container.querySelectorAll<HTMLButtonElement>('.button__payment'));
-    
-            // адрес 
-            this._addressInput.addEventListener('input', () => {
-                this.onInputChange('address', this._addressInput.value.trim());
-                this._validate();
-            });
-    
-            // кнопки оплаты
-            this._paymentButtons.forEach((btn) => {
-                btn.addEventListener('click', () => {
-                    this.selected = btn.name as ITypePayment;
-                    this._validate();
+            this._addressInput = ensureElement<HTMLInputElement>('input[name="address"]', container);
+            this._paymentButtons = container.querySelectorAll<HTMLButtonElement>('.button__payment');
+            this._button = this.container.querySelector('.order__button');
+
+            this._paymentButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    const payment = button.name as paymentMethod;
+                    this.events.emit('payment:change', { payment });
                 });
-            });
-    
-            this._submitButton.addEventListener('click', (event) => {
-                event.preventDefault();
-                if (this._submitButton.disabled) return;
-                events.emit('contacts:open');
-            });
+            });    
+            
+            if (this._button) {
+                this._button.addEventListener('click', () => {
+                    events.emit('contacts:open');
+                });
+            }
         }
     
-        // выбор кнопки оплаты
-        set selected(name: ITypePayment) {
-            this._selectedPayment = name;
-            this._paymentButtons.forEach((btn) => {
-                const isSelected = btn.name === name;
-                btn.classList.toggle('button_alt', !isSelected);
-            });
+        set address(value: string) {
+            this._addressInput.value = value;
         }
     
-        protected _getFormData(): IOrderForm {
-            return {
-                payment: this._selectedPayment || '',
-                address: this._addressInput.value.trim(),
-            };
+        set payment(payment: string) {
+            this._paymentButtons.forEach(btn => {
+                btn.classList.toggle('button_alt-active', btn.name === payment);
+            });
         }
-        private _validate() {
-            const isValid = this._selectedPayment && this._addressInput.value.trim().length > 0;
-            this._submitButton.disabled = !isValid;
-        }
+        // render(data: Partial<IOrderForm>): HTMLFormElement {
+        //     if (data.payment) {
+        //         this.payment = data.payment;
+        //     }
+        //     if (data.address) {
+        //         this.address = data.address;
+        //     }
+        
+        //     return this.container;
+        // }
+        
     }
     

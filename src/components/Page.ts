@@ -28,10 +28,6 @@ export class Page extends Component<IPage> {
             this.events.emit('basket:open');
         });
 
-        // this._basket.addEventListener('click', () => {
-        //     this.events.emit('basket:close');
-        // });
-
     }
 
     set counter(value: number) {

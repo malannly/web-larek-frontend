@@ -1,25 +1,28 @@
-export type ITypeItem = 'hard' | 'other' | 'additional' | 'button' | 'soft'
+
 
 // главная страница и мочалка каждой карточки
 export interface ICardItem {
 id: string;
 title: string;
 image: string;
-description?: string;
+description: string;
 price: number | null
-typeItem: ITypeItem;
+category: string;
 }
 
 // модалка корзины товаров
 export interface IBasket {
 id: string;
 title: string;
+index: number;
 price: number | null;
 finalPrice: number | null
 }
 
+export type paymentMethod = 'card' | 'cash' 
+
 export interface IOrderForm {
-    payment: 'card' | 'cash' | '';
+    payment: paymentMethod;
     address: string;
   }
 
@@ -27,20 +30,23 @@ export interface IOrderForm {
     items: string[];
 }
 
-export interface IOrderResult {
+export interface IContactsResult {
     id: string;
     total: number | null;
 }
   
   export type FormErrorsOrder = Partial<Record<keyof IOrderForm, string>>;
 
-export interface IContactsForm {
-    items: string[];
+  export interface IContactsForm {
     email: string;
     phone: string;
-  }
-  
-  export type FormErrorsContacts = Partial<Record<keyof IContactsForm, string>>;
+}
+
+export interface IContacts extends IContactsForm {
+    items: string[]
+}
+
+export type FormErrorsContacts = Partial<Record<keyof IContacts, string>>;
 
 // окно при удачной покупке
 export interface ISuccess {

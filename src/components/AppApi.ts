@@ -1,11 +1,11 @@
 import { Api, ApiListResponse } from './base/api';
-import { IOrderResult, IOrder } from "../types/index";
+import { IContactsResult, IContacts } from "../types/index";
 import { ICardItem } from '../types/index';
 
 export interface IAppAPI {
     getCardList: () => Promise<ICardItem[]>;
     getCardItem: (id: string) => Promise<ICardItem>;
-    orderCards: (order: IOrder) => Promise<IOrderResult>;
+    orderCards: (contacts: IContacts) => Promise<IContactsResult>;
 }
 
 export class AppAPI extends Api implements IAppAPI {
@@ -37,9 +37,9 @@ export class AppAPI extends Api implements IAppAPI {
     }
 
     // отправка заказа
-    orderCards(order: IOrder): Promise<IOrderResult> {
-        return this.post('/order', order).then(
-            (data: IOrderResult) => data
+    orderCards(contacts: IContacts): Promise<IContactsResult> {
+        return this.post('/order', contacts).then(
+            (data: IContactsResult) => data
         );
     }
 
