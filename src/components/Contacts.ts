@@ -1,13 +1,6 @@
 import {Form} from "./common/Form";
-import {EventEmitter, IEvents} from "./base/events";
-import {ensureElement} from "../utils/utils";
-
-// форма пользователя
-export interface IContactsForm {
-    items: string[];
-    email: string;
-    phone: string
-    }
+import { IEvents } from "./base/events";
+import { IContactsForm } from '../types'
 
 export class Contacts extends Form<IContactsForm> {
     private _button: HTMLElement;

@@ -1,9 +1,8 @@
 import { Model } from "./base/Model";
 import {EventEmitter} from "../components/base/events";
-import { IOrder, paymentMethod } from '../types/index'
+import { IOrderForm, paymentMethod } from '../types/index'
 
-import { IAppState, ICardItem, IBasket,
-    IContacts, IContactsForm, IOrderForm, FormErrorsContacts, FormErrorsOrder } from "../types/index";
+import { IAppState, ICardItem, IContactsForm, FormErrorsContacts, FormErrorsOrder } from "../types/index";
 
 const events = new EventEmitter();
 
@@ -22,20 +21,18 @@ export class LotItem extends Model<ICardItem> {
 
 // модель состояния приложения
 export class AppData extends Model<IAppState> {
-    cards: ICardItem[];        // список карточек на главной
-    basket: string[] = [];          // id товаров в корзине
-    contacts: IContacts = {
+    cards: ICardItem[];  // список карточек 
+    basket: string[] = []; // id товаров в корзине
+    contacts: IContactsForm = {
         email: '',
-        phone: '',
-        items: []
+        phone: ''
     }; // данные пользователя
-    order: IOrder = {
-        payment: 'cash',
+    order: IOrderForm = {
         address: '',
-        items: []
+        payment: undefined 
     }; // данные по заказу
     loading: boolean = false;
-    preview: string | null;  // id карточки для модального окна
+    preview: string | null;  // id карточки модального окна
     formErrorsContacts: FormErrorsContacts = {};    // ошибки формы contacts
     formErrorsOrder: FormErrorsOrder = {};  // ошибки формы order
     category: string;
@@ -60,14 +57,14 @@ export class AppData extends Model<IAppState> {
     addToBasket(item: { id: string }) {
         if (!this.basket.includes(item.id)) {
             this.basket.push(item.id);
-            this.emitChanges('basket:add', this.basket);
+            this.emitChanges('basket:changed', this.basket);
         }
     }
 
     // удалить товар из корзины
     removeFromBasket(item: { id: string }) {
         this.basket = this.basket.filter(id => id !== item.id);
-        this.emitChanges('basket:remove', this.basket);
+        this.emitChanges('basket:changed', this.basket);
     }    
 
     // очистить корзину
@@ -85,8 +82,7 @@ export class AppData extends Model<IAppState> {
     initContacts() {
         this.contacts = {
             email: '',
-            phone: '',
-            items:[]
+            phone: ''
         };
     this.emitChanges('contacts:changed')
     }
@@ -113,13 +109,12 @@ export class AppData extends Model<IAppState> {
     initOrder() {
         this.order = {
             address: '',
-            payment: 'cash',
-            items:[]
+            payment: undefined 
         };
     this.emitChanges('order:changed')
     }
 
-    setPayment(payment: paymentMethod): void {
+    setPayment(payment: string): void {
         if (!this.isPayment(payment)) {
             alert('Invalid payment');
             return;
@@ -132,27 +127,15 @@ export class AppData extends Model<IAppState> {
         this.order.address = address;
         this.emitChanges('order:changed');
     }
-
-    // setOrder(address: string, payment: paymentMethod): void {
-    //     if (!this.isPayment(payment)) {
-    //         alert('Invalid payment');
-    //         return;
-    //     }
-        
-    //     this.order.address = address;
-    //     this.order.payment = payment;
-    
-    //     this.emitChanges('order:changed');
-    // }
     
     validateOrder(): FormErrorsOrder {
         const errors: FormErrorsOrder = {};
         if (!this.order?.address) {
-            errors.address = 'Необходимо указать адресс';
+            errors.address = 'Необходимо указать адрес';
         }
-        if (!this.order?.payment) {
-            errors.payment = 'Выберите способ опоаты';
-        }
+        if (!this.isPayment(this.order.payment)) {
+            errors.payment = 'Не указан способ оплаты';
+          }
     
         return errors;
     }   
@@ -161,18 +144,9 @@ export class AppData extends Model<IAppState> {
     getTotal(): number {
         return this.basket.reduce((total, id) => {
             const item = this.cards.find(card => card.id === id);
-            return total + (item?.price || 0);
+            return total + (item?.price ?? 0);
         }, 0);
     }
-
-    // changePayment(payment: paymentMethod): void {
-    //     if (!this.isPayment(payment)) {
-    //         alert('Invalid payment');
-    //         return;
-    //     }
-    //     this.order.payment = payment;
-    //     this.events.emit('payment:changed', { payment }); 
-    // }    
 
       protected isPayment(x: string): x is paymentMethod {
         return ['cash', 'card'].includes(x);

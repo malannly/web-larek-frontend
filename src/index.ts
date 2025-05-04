@@ -5,8 +5,8 @@ import {EventEmitter} from "./components/base/events";
 import { AppData, CardChangeEvent }  from "./components/AppData";
 import {Page} from "./components/Page";
 import {Modal} from "./components/common/Modal";
-import {cloneTemplate, createElement, ensureElement} from "./utils/utils";
-import { Card, ICard, CardPage, CardBasket, CardPreview } from './components/Card';
+import {cloneTemplate, ensureElement} from "./utils/utils";
+import { CardPage, CardBasket, CardPreview } from './components/Card';
 import { ICardItem, paymentMethod, IOrderForm, IContactsForm } from './types/index';
 import { Basket } from './components/Basket';
 import { Order } from './components/Order';
@@ -53,9 +53,6 @@ api
 		console.error(err);
 	});
 
-    // инитизируем данные
-    appData.initContacts()
-
 // Изменились элементы каталога
 events.on<CardChangeEvent>('cards:updated', () => {
 	page.catalog = appData.getCards().map((item) => {
@@ -95,9 +92,9 @@ events.on('card:select', (item: ICardItem) => {
     preview.price = item.price ? `${item.price} синапсов` : 'Бесценно';
     preview.category = item.category;
     preview.description = item.description;
-
     preview.buttonText = appData.basket.includes(item.id) ? 'Удалить' : 'В корзину';
-  
+    preview.disabled = item.price === null;
+
     modal.render({ content: preview.render() });
     events.emit('modal:open');
   });
@@ -109,14 +106,12 @@ events.on('card:select', (item: ICardItem) => {
 events.on('basket:open', (event: { id: string }) => {
     modal.render({ content: basketElement })
     page.locked = true;
+    basket.selected = appData.basket;
 });
-
-events.on('basket:add', () => {
-    updateBasketView();
-  });
   
-  events.on('basket:remove', () => {
+  events.on('basket:changed', () => {
     updateBasketView();
+    basket.selected = appData.basket;
 });
 
 function updateBasketView() {
@@ -133,7 +128,7 @@ function updateBasketView() {
       });
   
       card.title = item.title;
-      card.price = `${item.price} синапсов`;
+      card.price = item.price ?`${item.price} синапсов` : 'Бесценно';
       card.index = String(index + 1);
   
       return card.render();
@@ -142,9 +137,6 @@ function updateBasketView() {
     basket.items = basketItems;
     basket.total = appData.getTotal();
   }  
-
-
-
 
 const order = new Order(cloneTemplate(orderTemplate), events);
 
@@ -161,11 +153,9 @@ events.on('order.address:change', (data: { value: string }) => {
 });
 
 events.on('order.payment:change', (data: { value: string }) => {
-    if (data.value === 'card' || data.value === 'cash') {
         appData.setPayment(data.value as paymentMethod);
-    }
+    
 });
-
 
 events.on('order:changed', () => {
     const { address, payment } = appData.validateOrder();
@@ -181,14 +171,11 @@ events.on('order:changed', () => {
 
 // Открыть форму заказа
 events.on('order:open', () => {
+    if (appData.basket.length === 0) {
+        return;
+    }
     modal.render({ content: order.render() });
 });
-
-
-
-
-
-
 
 // Изменилось состояние валидации формы
 events.on('FormErrorsContacts:change', (errors: Partial<IContactsForm>) => {
@@ -226,18 +213,30 @@ const successElement = cloneTemplate(successTemplate);
 const success = new Success(cloneTemplate(successTemplate), {
     onClick: () => {
         modal.close();
-        appData.clearBasket();
-        events.emit('success:changed');
     }
 });
 
 // Отправлена форма заказа
 events.on('contacts:submit', () => {
-    api.orderCards(appData.contacts)
+
+    const orderData = {
+        email: appData.contacts!.email,
+        phone: appData.contacts!.phone,
+        payment: appData.order!.payment,
+        address: appData.order!.address,
+        items: appData.basket,
+        total: appData.getTotal()
+    };
+
+    api
+    
+        .orderCards(orderData)
         .then((result) => {
             appData.clearBasket();
+            appData.initOrder();
+            appData.initContacts();
             modal.render({
-                content: success.render({})
+                content: success.render({ finalPrice: result.total })
             });
         })
         .catch(err => {
@@ -245,22 +244,7 @@ events.on('contacts:submit', () => {
         });
 });
 
-// Отправлена форма заказа
-events.on('contacts:submit', () => {
-    api.orderCards(appData.contacts)
-        .then((result) => {
-            const success = new Success(cloneTemplate(successTemplate), {
-                onClick: () => {
-                    modal.close();
-                    events.emit('contacts:changed');
-                }
-            });
 
-            modal.render({
-                content: success.render({})
-            });
-        })
-        .catch(err => {
-            console.error(err);
-        });
-});
+// инитизируем данные
+appData.initContacts()
+appData.initOrder()

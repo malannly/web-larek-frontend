@@ -1,5 +1,5 @@
 import {Component} from "./base/Component";
-import {cloneTemplate, createElement, ensureElement, formatNumber} from "./../utils/utils";
+import { createElement, ensureElement, formatNumber} from "./../utils/utils";
 import {EventEmitter} from "./base/events";
 
 interface IBasketView {

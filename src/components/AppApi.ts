@@ -1,12 +1,17 @@
 import { Api, ApiListResponse } from './base/api';
-import { IContactsResult, IContacts } from "../types/index";
+import { IOrderResult, IContactsForm, IOrderForm, paymentMethod } from "../types/index";
 import { ICardItem } from '../types/index';
 
 export interface IAppAPI {
-    getCardList: () => Promise<ICardItem[]>;
-    getCardItem: (id: string) => Promise<ICardItem>;
-    orderCards: (contacts: IContacts) => Promise<IContactsResult>;
-}
+    orderCards(data: {
+        email: string;
+        phone: string;
+        payment: paymentMethod;
+        address: string;
+        items: string[];
+        total: number;
+      }): Promise<IOrderResult>
+    }      
 
 export class AppAPI extends Api implements IAppAPI {
     readonly cdn: string;
@@ -37,10 +42,17 @@ export class AppAPI extends Api implements IAppAPI {
     }
 
     // отправка заказа
-    orderCards(contacts: IContacts): Promise<IContactsResult> {
-        return this.post('/order', contacts).then(
-            (data: IContactsResult) => data
-        );
+    orderCards(data: {
+        email: string;
+        phone: string;
+        payment: paymentMethod;
+        address: string;
+        items: string[];
+        total: number;
+    }): Promise<IOrderResult> {
+        return this.post('/order', data).then((result: IOrderResult) => result);
     }
+    
+    
 
 }

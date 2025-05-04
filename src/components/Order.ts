@@ -3,10 +3,6 @@ import { EventEmitter, IEvents } from "./base/events";
 import { ensureElement } from "../utils/utils";
 import { IOrderForm, paymentMethod } from "../types";
 
-interface IOrderActions {
-    onClick: () => void;
-}
-
     export class Order extends Form<IOrderForm> {
         private _addressInput: HTMLInputElement;
         private _paymentButtons: NodeListOf<HTMLButtonElement>;;
@@ -22,9 +18,9 @@ interface IOrderActions {
             this._paymentButtons.forEach((button) => {
                 button.addEventListener('click', () => {
                     const payment = button.name as paymentMethod;
-                    this.events.emit('payment:change', { payment });
+                    this.onInputChange('payment', payment);
                 });
-            });    
+            });              
             
             if (this._button) {
                 this._button.addEventListener('click', () => {
@@ -42,16 +38,6 @@ interface IOrderActions {
                 btn.classList.toggle('button_alt-active', btn.name === payment);
             });
         }
-        // render(data: Partial<IOrderForm>): HTMLFormElement {
-        //     if (data.payment) {
-        //         this.payment = data.payment;
-        //     }
-        //     if (data.address) {
-        //         this.address = data.address;
-        //     }
-        
-        //     return this.container;
-        // }
         
     }
     

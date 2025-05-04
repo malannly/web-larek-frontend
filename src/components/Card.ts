@@ -24,7 +24,6 @@ export class Card extends Component<ICard> {
 
         this._title = ensureElement<HTMLElement>(`.${blockName}__title`, container);
         this._price = ensureElement<HTMLElement>(`.${blockName}__price`, container);
-
     }
     set id(value: string) {
         this.container.dataset.id = value;
@@ -61,7 +60,7 @@ export class CardBasket extends Card {
 
         this._index = ensureElement<HTMLElement>(`.basket__item-index`, container);
         this._button = ensureElement<HTMLButtonElement>(`.basket__item-delete`, container);
-
+        
         if (actions?.onClick) {
             (this._button ?? this.container).addEventListener('click', actions.onClick);
         }
@@ -152,4 +151,10 @@ export class CardPreview extends CardPage {
             this._button.textContent = value;
         }
     }
-}
+    set disabled(value: boolean) {
+        if (this._button) {
+          this._button.disabled = value;
+          this._button.classList.toggle('button_disabled', value);
+          this._button.textContent = 'Недоступно';
+        }
+}}
