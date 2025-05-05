@@ -59,8 +59,7 @@ events.on<CardChangeEvent>('cards:updated', () => {
 		const card = new CardPage('card', cloneTemplate(cardCatalogTemplate), {
 			onClick: () => events.emit('card:select', item),
 		});
-        card.data = item;
-        return card.render();
+        return card.render(item);
 	});
 
 	page.counter = appData.basket.length;
@@ -81,15 +80,15 @@ events.on('card:select', (item: ICardItem) => {
         preview.buttonText = inBasket ? 'В корзину' : 'Удалить';
       }
     });
-  
-    preview.data = item;
-    preview.description = item.description;
-    preview.buttonText = appData.basket.includes(item.id) ? 'Удалить' : 'В корзину';
-    preview.disabled = item.price === null;
+    
     if (item.price === null) {
-        preview.buttonText = 'Недоступно';
+      preview.buttonText = 'Недоступно';
+      preview.disabled = true;
+    } else {
+      preview.buttonText = appData.basket.includes(item.id) ? 'Удалить' : 'В корзину';
+      preview.disabled = false;
     }
-    modal.render({ content: preview.render() });
+    modal.render({ content: preview.render(item) });
     events.emit('modal:open');
   });
   
@@ -120,11 +119,8 @@ function updateBasketView() {
         }
       });
   
-      card.title = item.title; 
-      card.price = item.price ?`${item.price} синапсов` : 'Бесценно';
       card.index = String(index + 1);
-  
-      return card.render();
+      return card.render(item);
     });
   
     basket.items = basketItems;

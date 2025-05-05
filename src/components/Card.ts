@@ -42,9 +42,10 @@ export class Card extends Component<ICard> {
         return this._title.textContent || '';
     }
 
-    set price(value: string) {
-        this.setPrice(this._price, value);
-    }
+    set price(value: string | number | null) {
+        const text = value === null ? 'Бесценно' : `${value} синапсов`;
+        this.setText(this._price, text);
+    }    
       
 }
 
@@ -116,13 +117,6 @@ export class CardPage extends Card {
         };
         return categoryMap[category] || 'card__category_other';
     }
-    set data(item: ICard) {
-        this.id = item.id;
-        this.title = item.title;
-        this.image = item.image;
-        this.price = item.price ? `${item.price} синапсов` : 'Бесценно';
-        this.category = item.category;
-      }
       
 }
 
