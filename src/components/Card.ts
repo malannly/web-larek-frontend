@@ -6,6 +6,7 @@ interface ICardActions {
 }
 
 export interface ICard {
+    id: string;
     title: string;
     price: number | null;
     category: string;
@@ -41,13 +42,10 @@ export class Card extends Component<ICard> {
         return this._title.textContent || '';
     }
 
-    get price(): string {
-        return this._price.textContent || '';
-    }
-
     set price(value: string) {
         this.setPrice(this._price, value);
     }
+      
 }
 
 // карточки в корзине
@@ -118,7 +116,14 @@ export class CardPage extends Card {
         };
         return categoryMap[category] || 'card__category_other';
     }
-
+    set data(item: ICard) {
+        this.id = item.id;
+        this.title = item.title;
+        this.image = item.image;
+        this.price = item.price ? `${item.price} синапсов` : 'Бесценно';
+        this.category = item.category;
+      }
+      
 }
 
 // модалка
@@ -153,8 +158,8 @@ export class CardPreview extends CardPage {
     }
     set disabled(value: boolean) {
         if (this._button) {
-          this._button.disabled = value;
-          this._button.classList.toggle('button_disabled', value);
-          this._button.textContent = 'Недоступно';
+            this._button.disabled = value;
+            this._button.classList.toggle('button_disabled', value);
         }
-}}
+    }
+}

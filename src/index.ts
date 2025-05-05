@@ -59,11 +59,7 @@ events.on<CardChangeEvent>('cards:updated', () => {
 		const card = new CardPage('card', cloneTemplate(cardCatalogTemplate), {
 			onClick: () => events.emit('card:select', item),
 		});
-      card.id = item.id;
-      card.title = item.title;
-      card.image = item.image;
-      card.price = item.price ? `${item.price} синапсов` : 'Бесценно';
-      card.category = item.category;
+        card.data = item;
         return card.render();
 	});
 
@@ -86,15 +82,13 @@ events.on('card:select', (item: ICardItem) => {
       }
     });
   
-    preview.id = item.id;
-    preview.title = item.title;
-    preview.image = item.image;
-    preview.price = item.price ? `${item.price} синапсов` : 'Бесценно';
-    preview.category = item.category;
+    preview.data = item;
     preview.description = item.description;
     preview.buttonText = appData.basket.includes(item.id) ? 'Удалить' : 'В корзину';
     preview.disabled = item.price === null;
-
+    if (item.price === null) {
+        preview.buttonText = 'Недоступно';
+    }
     modal.render({ content: preview.render() });
     events.emit('modal:open');
   });
@@ -105,7 +99,6 @@ events.on('card:select', (item: ICardItem) => {
 // Открытие корзины
 events.on('basket:open', (event: { id: string }) => {
     modal.render({ content: basketElement })
-    page.locked = true;
     basket.selected = appData.basket;
 });
   
@@ -127,7 +120,7 @@ function updateBasketView() {
         }
       });
   
-      card.title = item.title;
+      card.title = item.title; 
       card.price = item.price ?`${item.price} синапсов` : 'Бесценно';
       card.index = String(index + 1);
   

@@ -6,6 +6,7 @@ image: string;
 description: string;
 price: number | null
 category: string;
+index: number;
 }
 
 export type paymentMethod = 'card' | 'cash' 
